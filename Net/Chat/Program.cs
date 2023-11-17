@@ -1,4 +1,4 @@
-﻿using Chat;
+using Chat;
 
 var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (sender, e) =>
@@ -6,6 +6,7 @@ Console.CancelKeyPress += (sender, e) =>
   e.Cancel = true;
   cts.Cancel();
 };
+Console.WriteLine("press CTRL-C to close.");
 
 var name = "";
 while (string.IsNullOrWhiteSpace(name))
