@@ -3,16 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat", "Chat\Chat.csproj", "{A6EF3B13-E812-4368-B1F6-8BA2AFE478EB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0EB2FC38-E2B2-4048-ABA1-AA4E7926BBED}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{72184E7C-6AC9-47F2-B0B4-33C1F7251EA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aggregator", "Net\Aggregator\Aggregator.csproj", "{9C83CA32-2E22-449A-A77F-FE44BD80B634}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregator", "Aggregator\Aggregator.csproj", "{CD5DAD76-D037-46D4-89B9-7965FB115C2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat", "Net\Chat\Chat.csproj", "{BC394961-6C88-4492-81BA-6461F08DAAD4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Net\Common\Common.csproj", "{E45F6E9B-6043-4847-901A-A4BEBE818D0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,18 +22,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A6EF3B13-E812-4368-B1F6-8BA2AFE478EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6EF3B13-E812-4368-B1F6-8BA2AFE478EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6EF3B13-E812-4368-B1F6-8BA2AFE478EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6EF3B13-E812-4368-B1F6-8BA2AFE478EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72184E7C-6AC9-47F2-B0B4-33C1F7251EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72184E7C-6AC9-47F2-B0B4-33C1F7251EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72184E7C-6AC9-47F2-B0B4-33C1F7251EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72184E7C-6AC9-47F2-B0B4-33C1F7251EA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD5DAD76-D037-46D4-89B9-7965FB115C2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD5DAD76-D037-46D4-89B9-7965FB115C2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD5DAD76-D037-46D4-89B9-7965FB115C2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD5DAD76-D037-46D4-89B9-7965FB115C2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C83CA32-2E22-449A-A77F-FE44BD80B634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C83CA32-2E22-449A-A77F-FE44BD80B634}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C83CA32-2E22-449A-A77F-FE44BD80B634}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C83CA32-2E22-449A-A77F-FE44BD80B634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC394961-6C88-4492-81BA-6461F08DAAD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC394961-6C88-4492-81BA-6461F08DAAD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC394961-6C88-4492-81BA-6461F08DAAD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC394961-6C88-4492-81BA-6461F08DAAD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E45F6E9B-6043-4847-901A-A4BEBE818D0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E45F6E9B-6043-4847-901A-A4BEBE818D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E45F6E9B-6043-4847-901A-A4BEBE818D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E45F6E9B-6043-4847-901A-A4BEBE818D0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
