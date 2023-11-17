@@ -1,0 +1,6 @@
+*.msi
+.vscode/
+obj/
+bin/
+.vs/
+/tmp/bom.json
