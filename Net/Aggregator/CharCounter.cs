@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Streamiz.Kafka.Net;
 using Streamiz.Kafka.Net.SerDes;
 using Streamiz.Kafka.Net.Stream;
@@ -10,8 +10,7 @@ namespace Aggregator
     private KafkaStream stream;
     public CharCounter()
     {
-      var config = new StreamConfig<StringSerDes, StringSerDes>
-      {
+      var config = new StreamConfig<StringSerDes, StringSerDes> {
         ApplicationId = "aggregator",
         BootstrapServers = Common.Constants.KafkaHost,
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
@@ -34,11 +33,10 @@ namespace Aggregator
         .GroupByKey<Int32SerDes, Int32SerDes>()
         .Aggregate<int, Int32SerDes>(
           () => 0,
-          (n0, n1, n2) =>
-          {
-            var value = n1 + n2;
-            Console.WriteLine(value);
-            return value;
+          (key, value, aggregateValue) => {
+            var result = value + aggregateValue;
+            Console.WriteLine($"Char count is: {result}");
+            return result;
           });
       return builder.Build();
     }
