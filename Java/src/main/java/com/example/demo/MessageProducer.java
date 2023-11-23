@@ -7,8 +7,13 @@ import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageProducer implements Closeable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducer.class);
 
     private final String name;
 
@@ -18,16 +23,19 @@ public class MessageProducer implements Closeable {
         this.name = name;
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Common.KAFKA_HOST);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         this.producer = new KafkaProducer<>(properties);
     }
 
     public void sendMessage(String message) {
         ProducerRecord<String,String> record = new ProducerRecord<String,String>(Common.CHAT_TOPIC, this.name, message);
+        LOGGER.debug("Sending message {} to Kafka", message);
         this.producer.send(record);
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         this.producer.close();
     }
     
