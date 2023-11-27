@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.kafka.clients.producer.KafkaProducer;

@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
