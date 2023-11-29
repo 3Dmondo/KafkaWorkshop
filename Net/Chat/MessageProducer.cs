@@ -1,4 +1,4 @@
-﻿using Confluent.Kafka;
+using Confluent.Kafka;
 
 namespace Chat
 {
@@ -12,7 +12,8 @@ namespace Chat
       this.name = name;
       var producerConfig = new ProducerConfig
       {
-        BootstrapServers = Common.Constants.KafkaHost
+        BootstrapServers = Common.Constants.KafkaHost,
+        AllowAutoCreateTopics = true
       };
       producer = new ProducerBuilder<string, string>(producerConfig).Build();
     }

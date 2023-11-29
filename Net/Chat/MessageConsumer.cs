@@ -1,4 +1,4 @@
-﻿using Confluent.Kafka;
+using Confluent.Kafka;
 using System.Runtime.CompilerServices;
 
 namespace Chat
@@ -11,7 +11,8 @@ namespace Chat
       var consumerConfig = new ConsumerConfig
       {
         BootstrapServers = Common.Constants.KafkaHost,
-        GroupId = Guid.NewGuid().ToString()
+        GroupId = Guid.NewGuid().ToString(),
+        AllowAutoCreateTopics = true
       };
       consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
       consumer.Subscribe(Common.Constants.ChatTopic);
