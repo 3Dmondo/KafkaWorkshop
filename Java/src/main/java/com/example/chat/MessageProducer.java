@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.chat;
 
 import java.io.Closeable;
 import java.util.Properties;

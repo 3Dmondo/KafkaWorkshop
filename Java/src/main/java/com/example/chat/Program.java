@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.chat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
