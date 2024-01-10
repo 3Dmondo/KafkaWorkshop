@@ -8,8 +8,7 @@ namespace Chat
     private IConsumer<string, string> consumer;
     public MessageConsumer()
     {
-      var consumerConfig = new ConsumerConfig
-      {
+      var consumerConfig = new ConsumerConfig {
         BootstrapServers = Common.Constants.KafkaHost,
         GroupId = Guid.NewGuid().ToString(),
         AllowAutoCreateTopics = true
@@ -18,15 +17,23 @@ namespace Chat
       consumer.Subscribe(Common.Constants.ChatTopic);
     }
 
-    public async IAsyncEnumerable<ConsumeResult<string, string>>
+    public IEnumerable<ConsumeResult<string, string>>
       ConsumeAsync([EnumeratorCancellation] CancellationToken token)
     {
-      while (!token.IsCancellationRequested)
-      {
-        yield return await Task.Factory.StartNew(
-          state => consumer.Consume((CancellationToken)state),
-          token,
-          token);
+      while (!token.IsCancellationRequested) {
+        var message = Consume(token);
+        if (message != null) {
+          yield return message;
+        }
+      }
+    }
+
+    private ConsumeResult<string, string> Consume(CancellationToken token)
+    {
+      try {
+        return consumer.Consume(token);
+      } catch (Exception ex) {
+        return null;
       }
     }
 
