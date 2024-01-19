@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -12,6 +13,8 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,10 @@ public class CharCounter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CharCounter.class);
     
     private final KafkaStreams kafkaStreams;
+
+    public KafkaStreams getKafkaStreams() {
+      return kafkaStreams;
+    }
 
     public CharCounter() {
         Topology topology = buildTopology();
@@ -41,14 +48,19 @@ public class CharCounter {
     
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
-        builder
+      Materialized<Integer, Integer, KeyValueStore<Bytes, byte[]>> materialized = Materialized
+        .<Integer, Integer, KeyValueStore<Bytes, byte[]>>as("countstore")
+        .withKeySerde(Serdes.Integer())
+        .withValueSerde(Serdes.Integer());
+
+      builder
             .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
             .map((k, v) -> new KeyValue<>(1, v))
             .groupByKey(Grouped.with(Serdes.Integer(), Serdes.String()))
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + msg.length(),
-                Materialized.with(Serdes.Integer(), Serdes.Integer())
+                materialized
             )
             .toStream()
             .foreach((k, v) -> LOGGER.info("Count for {} is {}", k, v));
