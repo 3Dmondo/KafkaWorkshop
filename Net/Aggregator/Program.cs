@@ -19,4 +19,7 @@ while (charCounter.State == State.RUNNING) {
   await Task.Delay(1000);
 }
 
+while (charCounter.State != State.NOT_RUNNING)
+  await Task.Delay(1000);
+
 Console.WriteLine("Terminated");
