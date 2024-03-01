@@ -10,7 +10,7 @@ namespace Chat
         try {
           foreach (var consumerResult in consumer.ConsumeAsync(token)) {
             var consoleMessage = $"{consumerResult.Message.Key}: {consumerResult.Message.Value}";
-            //Console.CursorLeft = Console.BufferWidth - consoleMessage.Length;
+            Console.CursorLeft = Console.BufferWidth - consoleMessage.Length;
             Console.WriteLine(consoleMessage);
           }
         } catch (OperationCanceledException) { }

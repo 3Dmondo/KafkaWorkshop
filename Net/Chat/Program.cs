@@ -16,9 +16,9 @@ while (string.IsNullOrWhiteSpace(name))
 }
 
 using var streamer = new MessageProducer(name);
+streamer.CreateTopicIfNotExists();
 using var consumer = new MessageConsumer();
 
-streamer.CreateTopicIfNotExists();
 
 Console.WriteLine("You can start typing your messages");
 
