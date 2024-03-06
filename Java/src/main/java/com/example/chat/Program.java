@@ -1,5 +1,8 @@
 package com.example.chat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -15,29 +18,30 @@ public class Program {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Program.class);
 
+	private static String readInputString() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		return reader.readLine();
+	}
+
 	public static void main(String[] args) {
 		LOGGER.info("Please type your name: ");
-		String name = System.console().readLine();
+		String name;
+		try {
+			name = readInputString();
+		} catch (IOException e) {
+			LOGGER.error("Unable to start: ", e);
+			return;
+		}
 		MessageConsumer consumer = new MessageConsumer();
 		MessageProducer producer = new MessageProducer(name);
+
 		LOGGER.info("You can start typing your messages");
 
 		CountDownLatch senderLatch = new CountDownLatch(1);
 
-		Runnable sender = () -> {
-			boolean isRunning = true;
-			while (isRunning) {
-				String message = System.console().readLine();
-				if (message == null) {
-					senderLatch.countDown();
-					isRunning = false;
-				} else {
-					producer.sendMessage(message);
-				}
-			}
-		};
+		ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-		Runnable receiver = () -> {
+		Future<?> receiverFut = executorService.submit(() -> {
 			boolean isRunning = true;
 			while (isRunning) {
 				if (senderLatch.getCount() == 0) {
@@ -49,22 +53,39 @@ public class Program {
 					}
 				}
 			}
-		};
+		});
 
-		try {
-			ExecutorService executorService = Executors.newFixedThreadPool(2);
-			Future<?> receiverFut = executorService.submit(receiver);
-			Future<?> senderFut = executorService.submit(sender);
-			senderFut.get();
-			receiverFut.get();
-			LOGGER.info("Shutting down...");
-			executorService.shutdown();
-			executorService.awaitTermination(60, TimeUnit.SECONDS);
-			consumer.close();
-			producer.close();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
+		Future<?> senderFut = executorService.submit(() -> {
+			boolean isRunning = true;
+			while (isRunning) {
+				try {
+					String messageToSend = readInputString();
+					if (messageToSend == null) {
+						senderLatch.countDown();
+						isRunning = false;
+					} else {
+						producer.sendMessage(messageToSend);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				senderFut.get();
+				receiverFut.get();
+				LOGGER.info("Shutting down...");
+				executorService.shutdown();
+				executorService.awaitTermination(60, TimeUnit.SECONDS);
+				consumer.close();
+				producer.close();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}));
+
 	}
 
 }

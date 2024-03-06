@@ -7,12 +7,18 @@
 
     <appender name="STDOUT" class="ConsoleAppender">
         <encoder class="PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>-->
+            <pattern>%d{HH:mm:ss.SSS} -%kvp- %msg%n</pattern>
         </encoder>
-        <logger name="org.apache.kafka" level="ERROR" />
     </appender>
 
-    <logger name="org.apache.kafka" level="ERROR" />
+    <logger name="ch.qos.logback.classic" level="OFF" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.apache.kafka" level="ERROR">
+        <appender-ref ref="STDOUT" />
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
