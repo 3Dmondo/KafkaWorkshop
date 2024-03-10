@@ -12,6 +12,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyDescription;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,16 @@ public class CharCounter implements Closeable {
     public CharCounter() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
         addGlobalCharCounter(streamsBuilder);
-        addCharCounter(streamsBuilder);
-        addWordCounter(streamsBuilder);
+
+        KTable<String, Integer> charCount = addCharCounter(streamsBuilder);
+        charCount.toStream().foreach((k, v) -> LOGGER.info("Char count for {}: {}", k, v));
+
+        KTable<String, Integer> messageCount = addMessageCounter(streamsBuilder);
+        messageCount.toStream().foreach((k, v) -> LOGGER.info("Message count for {}: {}", k, v));
+
+        KTable<String, Integer> wordCount = addWordCounter(streamsBuilder);
+        wordCount.toStream().foreach((k, v) -> LOGGER.info("Word count for {}: {}", k, v));
+
         Topology topology = streamsBuilder.build();
         TopologyDescription topologyDescription = topology.describe();
         LOGGER.info("Initialized Kafka Streams application with topology \n{}", topologyDescription);
@@ -59,30 +68,34 @@ public class CharCounter implements Closeable {
             .foreach((k, v) -> LOGGER.info("Total count of characters = {}", v));
     }
 
-    private void addCharCounter(StreamsBuilder streamsBuilder) {
-        streamsBuilder
+    private KTable<String, Integer> addCharCounter(StreamsBuilder streamsBuilder) {
+        return streamsBuilder
             .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
             .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + msg.length(),
-                Materialized.with(Serdes.String(), Serdes.Integer())
-            )
-            .toStream()
-            .foreach((k, v) -> LOGGER.info("Char count for {} = {}", k, v));
+                Materialized.with(Serdes.String(), Serdes.Integer()));
     }
 
-    private void addWordCounter(StreamsBuilder streamsBuilder) {
-        streamsBuilder
+    private KTable<String, Integer> addMessageCounter(StreamsBuilder streamsBuilder) {
+        return streamsBuilder
             .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
             .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + 1,
-                Materialized.with(Serdes.String(), Serdes.Integer())
-            )
-            .toStream()
-            .foreach((k, v) -> LOGGER.info("Word count for {} = {}", k, v));
+                Materialized.with(Serdes.String(), Serdes.Integer()));
+    }
+
+    private KTable<String, Integer> addWordCounter(StreamsBuilder streamsBuilder) {
+        return streamsBuilder
+            .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
+            .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
+            .aggregate(
+                () -> 0, 
+                (k, msg, agg) -> agg + msg.split("\\s+").length,
+                Materialized.with(Serdes.String(), Serdes.Integer()));
     }
 
     private void addAverageWordCharCounter(StreamsBuilder streamsBuilder) {
