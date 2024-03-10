@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 import com.example.chat.Common;
 
-public class CharCounter implements Closeable {
+public class ChatAggregator implements Closeable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CharCounter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatAggregator.class);
     
     private final KafkaStreams kafkaStreams;
 
-    public CharCounter() {
+    public ChatAggregator() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
         addGlobalCharCounter(streamsBuilder);
 

@@ -14,7 +14,7 @@ public class Program {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
         LOGGER.info("press CTRL-C to close.");
-        CharCounter charCounter = new CharCounter();
+        ChatAggregator charCounter = new ChatAggregator();
 
 		ExecutorService executorService = Executors.newFixedThreadPool(2);
 		Future<?> future = executorService.submit(() -> {
