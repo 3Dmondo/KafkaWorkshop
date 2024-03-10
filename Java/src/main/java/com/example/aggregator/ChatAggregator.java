@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -14,6 +15,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +23,16 @@ import com.example.chat.Common;
 
 public class ChatAggregator implements Closeable {
 
+    public static final String GLOABAL_COUNT_STORE = "globalCountStore";
+
+    public static final String CHAR_COUNT_STORE = "charCountStore";
+
+    public static final String MESSAGE_COUNT_STORE = "messageCountStore";
+
+    public static final String WORD_COUNT_STORE = "wordCountStore";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatAggregator.class);
-    
+
     private final KafkaStreams kafkaStreams;
 
     public ChatAggregator() {
@@ -62,8 +72,10 @@ public class ChatAggregator implements Closeable {
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + msg.length(),
-                Materialized.with(Serdes.Integer(), Serdes.Integer())
-            )
+                Materialized
+                    .<Integer, Integer, KeyValueStore<Bytes, byte[]>>as(GLOABAL_COUNT_STORE)
+                    .withKeySerde(Serdes.Integer())
+                    .withValueSerde(Serdes.Integer()))
             .toStream()
             .foreach((k, v) -> LOGGER.info("Total count of characters = {}", v));
     }
@@ -75,7 +87,10 @@ public class ChatAggregator implements Closeable {
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + msg.length(),
-                Materialized.with(Serdes.String(), Serdes.Integer()));
+                Materialized
+                    .<String, Integer, KeyValueStore<Bytes, byte[]>>as(CHAR_COUNT_STORE)
+                    .withKeySerde(Serdes.String())
+                    .withValueSerde(Serdes.Integer()));
     }
 
     private KTable<String, Integer> addMessageCounter(StreamsBuilder streamsBuilder) {
@@ -85,7 +100,10 @@ public class ChatAggregator implements Closeable {
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + 1,
-                Materialized.with(Serdes.String(), Serdes.Integer()));
+                Materialized
+                    .<String, Integer, KeyValueStore<Bytes, byte[]>>as(MESSAGE_COUNT_STORE)
+                    .withKeySerde(Serdes.String())
+                    .withValueSerde(Serdes.Integer()));
     }
 
     private KTable<String, Integer> addWordCounter(StreamsBuilder streamsBuilder) {
@@ -95,7 +113,10 @@ public class ChatAggregator implements Closeable {
             .aggregate(
                 () -> 0, 
                 (k, msg, agg) -> agg + msg.split("\\s+").length,
-                Materialized.with(Serdes.String(), Serdes.Integer()));
+                Materialized
+                    .<String, Integer, KeyValueStore<Bytes, byte[]>>as(WORD_COUNT_STORE)
+                    .withKeySerde(Serdes.String())
+                    .withValueSerde(Serdes.Integer()));
     }
 
     private void addAverageWordCharCounter(StreamsBuilder streamsBuilder) {
