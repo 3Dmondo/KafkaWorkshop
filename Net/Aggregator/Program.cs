@@ -8,15 +8,15 @@ Console.CancelKeyPress += (sender, e) => {
 };
 Console.WriteLine("press CTRL-C to close.");
 
-using var charCounter = new CharCounter();
+using var charCounter = new ChatAggregator();
 await charCounter.StartAsync(cts.Token);
 
 await charCounter.WaitUntilRunningAsync();
 
 while (charCounter.State == State.RUNNING) {
   foreach (var item in charCounter.StoreValues())
-    Console.WriteLine($"{item.Key} - {item.Value}");
-  await Task.Delay(1000);
+    Console.WriteLine($"Local store char count for {item.Key} is {item.Value}");
+  await Task.Delay(10_000);
 }
 
 while (charCounter.State != State.NOT_RUNNING)
