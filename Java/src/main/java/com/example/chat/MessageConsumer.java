@@ -31,8 +31,11 @@ public class MessageConsumer implements Closeable {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         this.consumer = new KafkaConsumer<>(props);
         this.consumer.subscribe(Collections.singletonList(Common.CHAT_TOPIC));
+        this.consumer.poll(Duration.ofSeconds(1));
+        this.consumer.commitSync();
     }
 
     public Stream<ConsumerRecord<String, String>> consume() {
@@ -46,6 +49,7 @@ public class MessageConsumer implements Closeable {
 
     @Override
     public void close() {
+        this.consumer.unsubscribe();
         this.consumer.close();
     }
     

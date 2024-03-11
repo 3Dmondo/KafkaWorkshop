@@ -30,7 +30,13 @@ public class MessageProducer implements Closeable {
     public void sendMessage(String message) {
         ProducerRecord<String,String> record = new ProducerRecord<String,String>(Common.CHAT_TOPIC, this.name, message);
         LOGGER.debug("Sending message {} to Kafka", message);
-        this.producer.send(record);
+        this.producer.send(record, (md, ex) -> {
+            if (ex != null) {
+                LOGGER.error("Unable to send message");
+            } else {
+                LOGGER.debug("Correctly sent message");
+            }
+        });
     }
 
     @Override
