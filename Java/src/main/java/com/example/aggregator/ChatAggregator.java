@@ -47,8 +47,8 @@ public class ChatAggregator implements Closeable {
 
         KTable<String, Integer> charCount = addCharCounter(streamsBuilder);
 
-        //KTable<String, Integer> messageCount = addMessageCounter(streamsBuilder);
-        //messageCount.toStream().foreach((k, v) -> LOGGER.info("Message count for {}: {}", k, v));
+        KTable<String, Integer> messageCount = addMessageCounter(streamsBuilder);
+        messageCount.toStream().foreach((k, v) -> LOGGER.info("Message count for {}: {}", k, v));
 
         KTable<String, Integer> wordCount = addWordCounter(streamsBuilder);
         wordCount.toStream().foreach((k, v) -> LOGGER.info("Word count for {}: {}", k, v));
