@@ -1,8 +1,10 @@
 package com.example.aggregator;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -35,12 +37,15 @@ public class ChatAggregator implements Closeable {
 
     private final KafkaStreams kafkaStreams;
 
+    public KafkaStreams getKafkaStreams() {
+        return kafkaStreams;
+    }
+
     public ChatAggregator() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
-        addGlobalCharCounter(streamsBuilder);
+        KTable<Integer, Integer> globalMessageCount = addGlobalCharCounter(streamsBuilder);
 
         KTable<String, Integer> charCount = addCharCounter(streamsBuilder);
-        charCount.toStream().foreach((k, v) -> LOGGER.info("Char count for {}: {}", k, v));
 
         KTable<String, Integer> messageCount = addMessageCounter(streamsBuilder);
         messageCount.toStream().foreach((k, v) -> LOGGER.info("Message count for {}: {}", k, v));
@@ -52,11 +57,12 @@ public class ChatAggregator implements Closeable {
         TopologyDescription topologyDescription = topology.describe();
         LOGGER.info("Initialized Kafka Streams application with topology \n{}", topologyDescription);
         Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "aggregator_id");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "aggregator-java");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Common.KAFKA_HOST);
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         this.kafkaStreams = new KafkaStreams(topology, props);
     }
 
@@ -64,8 +70,8 @@ public class ChatAggregator implements Closeable {
         kafkaStreams.start();
     }
 
-    private void addGlobalCharCounter(StreamsBuilder streamsBuilder) {
-        streamsBuilder
+    private KTable<Integer, Integer> addGlobalCharCounter(StreamsBuilder streamsBuilder) {
+        return streamsBuilder
             .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
             .map((k, v) -> new KeyValue<>(1, v))
             .groupByKey(Grouped.with(Serdes.Integer(), Serdes.String()))
@@ -75,9 +81,7 @@ public class ChatAggregator implements Closeable {
                 Materialized
                     .<Integer, Integer, KeyValueStore<Bytes, byte[]>>as(GLOABAL_COUNT_STORE)
                     .withKeySerde(Serdes.Integer())
-                    .withValueSerde(Serdes.Integer()))
-            .toStream()
-            .foreach((k, v) -> LOGGER.info("Total count of characters = {}", v));
+                    .withValueSerde(Serdes.Integer()));
     }
 
     private KTable<String, Integer> addCharCounter(StreamsBuilder streamsBuilder) {
@@ -109,10 +113,11 @@ public class ChatAggregator implements Closeable {
     private KTable<String, Integer> addWordCounter(StreamsBuilder streamsBuilder) {
         return streamsBuilder
             .stream(Common.CHAT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()))
+            .flatMapValues(v -> Arrays.asList(v.split("\\s+")))
             .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
             .aggregate(
                 () -> 0, 
-                (k, msg, agg) -> agg + msg.split("\\s+").length,
+                (k, msg, agg) -> agg + msg.length(),
                 Materialized
                     .<String, Integer, KeyValueStore<Bytes, byte[]>>as(WORD_COUNT_STORE)
                     .withKeySerde(Serdes.String())
