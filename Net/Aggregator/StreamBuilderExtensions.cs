@@ -61,4 +61,23 @@ internal static class StreamBuilderExtensions
       .Foreach((k, v) => Console.WriteLine($"Word count for {k} is {v}"));
     return stream;
   }
+
+  public static IKStream<string, string> AddMessageCounter(
+  this IKStream<string, string> stream,
+  string storeName)
+  {
+    stream
+      .GroupByKey<StringSerDes, StringSerDes>()
+      .Aggregate(
+        () => 0,
+        (_, _, aggregateValue) => {
+          var result = aggregateValue + 1;
+          return result;
+        },
+        Materialized<string, int, IKeyValueStore<Bytes, byte[]>>
+          .Create<StringSerDes, Int32SerDes>(storeName))
+      .ToStream()
+      .Foreach((k, v) => Console.WriteLine($"Message count for {k} is {v}"));
+    return stream;
+  }
 }
