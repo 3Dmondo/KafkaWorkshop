@@ -11,12 +11,13 @@ namespace Aggregator
     private const string GlobalStoreName = "globalCountStore";
     private const string CharStoreName = "charCountStore";
     private const string WordStoreName = "wordCountStore";
+    private const string MessageStoreName = "messageCountStore";
     private KafkaStream stream;
 
     public ChatAggregator()
     {
       var config = new StreamConfig<StringSerDes, StringSerDes> {
-        ApplicationId = "aggregator",
+        ApplicationId = "aggregator-net",
         BootstrapServers = Common.Constants.KafkaHost,
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
         AllowAutoCreateTopics = true,
@@ -28,7 +29,8 @@ namespace Aggregator
       streamBuilder.Stream<string, string>(Common.Constants.ChatTopic)
         .AddGlobalCharCounter(GlobalStoreName)
         .AddCharCounter(CharStoreName)
-        .AddWordCounter(WordStoreName);
+        .AddWordCounter(WordStoreName)
+        .AddMessageCounter(MessageStoreName);
 
       stream = new KafkaStream(streamBuilder.Build(), config);
       stream.StateChanged += (oldState, newState) => State = newState;
