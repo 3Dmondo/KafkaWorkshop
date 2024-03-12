@@ -43,9 +43,11 @@ public class ChatAggregator implements Closeable {
 
     public ChatAggregator() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
-        KTable<Integer, Integer> globalMessageCount = addGlobalCharCounter(streamsBuilder);
+        KTable<Integer, Integer> globalCharCount = addGlobalCharCounter(streamsBuilder);
+        globalCharCount.toStream().foreach((k, v) -> LOGGER.info("Global char count: {}", v));
 
         KTable<String, Integer> charCount = addCharCounter(streamsBuilder);
+        charCount.toStream().foreach((k, v) -> LOGGER.info("Char count for {}: {}", k, v));
 
         KTable<String, Integer> messageCount = addMessageCounter(streamsBuilder);
         messageCount.toStream().foreach((k, v) -> LOGGER.info("Message count for {}: {}", k, v));
@@ -117,7 +119,7 @@ public class ChatAggregator implements Closeable {
             .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
             .aggregate(
                 () -> 0, 
-                (k, msg, agg) -> agg + msg.length(),
+                (k, msg, agg) -> agg + 1,
                 Materialized
                     .<String, Integer, KeyValueStore<Bytes, byte[]>>as(WORD_COUNT_STORE)
                     .withKeySerde(Serdes.String())
