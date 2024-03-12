@@ -8,21 +8,21 @@ namespace Aggregator
 {
   internal class ChatAggregator : IDisposable
   {
-    private const string GlobalStoreName = "globalCountStore";
-    private const string CharStoreName = "charCountStore";
-    private const string WordStoreName = "wordCountStore";
-    private const string MessageStoreName = "messageCountStore";
+    private const string GlobalStoreName = "globalCountStore-net";
+    private const string CharStoreName = "charCountStore-net";
+    private const string WordStoreName = "wordCountStore-net";
+    private const string MessageStoreName = "messageCountStore-net";
     private KafkaStream stream;
 
     public ChatAggregator()
     {
       var config = new StreamConfig<StringSerDes, StringSerDes> {
-        ApplicationId = "aggregator-net",
+        ApplicationId = "aggregator-net-2",
         BootstrapServers = Common.Constants.KafkaHost,
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
         AllowAutoCreateTopics = true,
         Guarantee = ProcessingGuarantee.EXACTLY_ONCE,
-        Logger = LoggerFactory.Create(b => b.ClearProviders()),
+        //Logger = LoggerFactory.Create(b => b.ClearProviders()),
       };
 
       var streamBuilder = new StreamBuilder();
