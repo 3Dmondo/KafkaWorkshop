@@ -22,8 +22,8 @@ namespace Aggregator
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
         AllowAutoCreateTopics = true,
         Guarantee = ProcessingGuarantee.EXACTLY_ONCE,
-        StateDir = $"./tmp/{Guid.NewGuid()}"
-        //Logger = LoggerFactory.Create(b => b.ClearProviders()),
+        StateDir = $"./tmp/{Guid.NewGuid()}",
+        Logger = LoggerFactory.Create(b => b.ClearProviders()),
       };
 
       var streamBuilder = new StreamBuilder();
