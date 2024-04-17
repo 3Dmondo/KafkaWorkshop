@@ -17,11 +17,12 @@ namespace Aggregator
     public ChatAggregator()
     {
       var config = new StreamConfig<StringSerDes, StringSerDes> {
-        ApplicationId = "aggregator-net-2",
+        ApplicationId = "aggregator-net",
         BootstrapServers = Common.Constants.KafkaHost,
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
         AllowAutoCreateTopics = true,
         Guarantee = ProcessingGuarantee.EXACTLY_ONCE,
+        PartitionAssignmentStrategy = Confluent.Kafka.PartitionAssignmentStrategy.RoundRobin
         Logger = LoggerFactory.Create(b => b.ClearProviders()),
       };
 
@@ -58,7 +59,8 @@ namespace Aggregator
       } catch (Exception e) {
         Console.WriteLine(e.Message);
         Console.WriteLine(e.StackTrace);
-        throw;
+        //throw;
+        return Enumerable.Empty<KeyValuePair<string, int>>();
       }
     }
 
