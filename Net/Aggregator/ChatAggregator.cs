@@ -22,7 +22,8 @@ namespace Aggregator
         AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest,
         AllowAutoCreateTopics = true,
         Guarantee = ProcessingGuarantee.EXACTLY_ONCE,
-        PartitionAssignmentStrategy = Confluent.Kafka.PartitionAssignmentStrategy.RoundRobin
+        PartitionAssignmentStrategy = Confluent.Kafka.PartitionAssignmentStrategy.RoundRobin,
+        StateDir = "./tmp",
         Logger = LoggerFactory.Create(b => b.ClearProviders()),
       };
 
