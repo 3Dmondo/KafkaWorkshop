@@ -52,7 +52,7 @@ namespace Chat
       return new Message<byte[], byte[]> { Key = Key, Value = Value };
     }
 
-    public void Produce(int count)
+    public void ProduceWithFlush(int count)
     {
       var maxBatch = 1000;
       var intermediateCount = 0;
@@ -61,12 +61,42 @@ namespace Chat
         producer.Produce(
           Common.Constants.ByteTopic,
           RandomMessage());
+        //var pollResult = producer.Poll(TimeSpan.Zero);
+        //Console.WriteLine(pollResult);
         if (intermediateCount > maxBatch) {
           intermediateCount = 0;
           producer.Flush();
         }
       }
-      //producer.Flush();
+      producer.Flush();
+    }
+
+
+
+    public void ProduceWithTryCatch(int count)
+    {
+      var maxBatch = 1000;
+      var intermediateCount = 0;
+      while (count-- > 0) {
+        intermediateCount++;
+        //produce:
+        try {
+          producer.Produce(
+            Common.Constants.ByteTopic,
+            RandomMessage(),
+            (r) => { 
+              Console.WriteLine(r.ToString());
+            });
+        } catch (ProduceException<byte[], byte[]> ex) {
+          producer.Flush();
+          //goto produce;
+          producer.Produce(
+            Common.Constants.ByteTopic,
+            RandomMessage());
+        }
+
+      }
+      producer.Flush();
     }
 
     public async Task ProduceAsync(int count)
